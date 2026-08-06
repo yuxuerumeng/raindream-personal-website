@@ -215,20 +215,42 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
 
 /* ===== Responsive ===== */
 @media(max-width:768px){
-.nav-links{gap:18px}
+.nav-links{gap:16px}
 .nav-links a{font-size:12px}
+.nav{padding:0 16px}
+.hero-blob--blue{width:280px;height:280px}
+.hero-blob--pink{width:240px;height:240px}
+.hero-blob--white{width:180px;height:180px}
+.hero-actions{flex-direction:column;align-items:center}
+.hero-btn{width:100%;max-width:280px;justify-content:center}
 .about-grid{grid-template-columns:1fr;gap:40px}
-.about-visual{height:240px}
-.blog-grid{grid-template-columns:1fr}
-.modal-content{padding:32px 24px}
+.about-visual{height:260px}
+.about-avatar{width:140px;height:140px}
+.contact-grid{flex-direction:column;align-items:stretch}
+.contact-link{justify-content:center}
+.footer-links{gap:8px}
 .section{padding:80px 20px}
+.hero-scroll{bottom:24px}
+.back-top{bottom:24px;right:20px;width:40px;height:40px;font-size:16px}
 }
 
 @media(max-width:480px){
-.hero-name{font-size:42px}
-.nav-links{gap:14px}
+.hero-name{font-size:clamp(38px,10vw,52px)}
+.hero-sub{font-size:18px}
+.hero-desc{font-size:14px;padding:0 8px}
+.hero-greeting{font-size:13px}
+.nav-links{gap:10px}
 .nav-links a{font-size:11px}
-.blog-header{flex-direction:column;gap:8px}
+.nav-logo{font-size:16px}
+.section-title{font-size:28px}
+.section-desc{font-size:15px}
+.about-visual{height:220px}
+.about-avatar{width:120px;height:120px}
+.about-text p{font-size:15px}
+.theme-toggle{width:36px;height:20px}
+.theme-toggle::before{width:16px;height:16px}
+[data-theme="dark"] .theme-toggle::before{transform:translateX(16px)}
+.toggle-sun{left:4px}.toggle-moon{right:4px}
 }
 </style>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
