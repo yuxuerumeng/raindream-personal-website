@@ -42,8 +42,36 @@ HTML 里的 `<style>` 标签负责样式，`<script>` 标签负责交互逻辑�
 
 ## 部署
 
-把四个文件上传到 Cloudflare Pages / GitHub Pages 即可。
+### Cloudflare Pages（推荐）
 
-## 离线运行
+1. 登录 [Cloudflare Dashboard](https://dash.cloudflare.com) → Workers & Pages
+2. 点 **Create** → **Pages** → **Connect to Git**
+3. 选择 GitHub 仓库 `raindream-personal-website`
+4. Build settings 留空，直接点 **Save and Deploy**
+5. 部署完成后会分配一个 `*.pages.dev` 域名，可绑定自定义域名
 
-网站只有博客页的 Markdown 渲染依赖 `marked.js` CDN，断网时文章会降级显示纯文本。主页完全不依赖外部网络。
+### Vercel
+
+1. 打开 [vercel.com](https://vercel.com) → **New Project**
+2. 导入 GitHub 仓库
+3. Framework 选 **Other**，Build 和 Output 留空
+4. 点 Deploy
+
+### GitHub Pages
+
+1. 仓库 Settings → Pages
+2. Source 选 **Deploy from a branch**，分支选 `main`
+3. 文件夹选 `/ (root)`
+4. Save，等几分钟即可
+
+## 本地运行
+
+直接双击 `index.html` 在浏览器打开，或：
+
+```bash
+python -m http.server 8080
+```
+
+## 离线说明
+
+主页完全不依赖外部网络。博客页的 Markdown 渲染依赖 `marked.js` CDN，断网时会降级显示纯文本。
