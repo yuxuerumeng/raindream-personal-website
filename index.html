@@ -36,7 +36,6 @@ if(!location.hash)window.addEventListener('load',function(){window.scrollTo({top
 --text-3:#78787f;
 --nav-bg:rgba(245,245,247,0.64);
 --nav-solid:#f5f5f7;
---bg-fade:rgba(238,239,242,0);
 --nav-border:rgba(0,0,0,0.06);
 --border:rgba(0,0,0,0.06);
 --border-card:rgba(0,0,0,0.04);
@@ -50,6 +49,8 @@ if(!location.hash)window.addEventListener('load',function(){window.scrollTo({top
 --blue-glow:rgba(61,174,230,0.55);
 --pink-glow:rgba(245,169,184,0.50);
 --gradient-hero:linear-gradient(160deg,#c8e0f4 0%,#f8dce4 25%,#f0f0f6 50%,#dcecf8 75%,#f8dce4 100%);
+--gradient-hero-light:linear-gradient(160deg,#c8e0f4 0%,#f8dce4 25%,#f0f0f6 50%,#dcecf8 75%,#f8dce4 100%);
+--gradient-hero-dark:linear-gradient(160deg,#0d0d24 0%,#1a1030 25%,#0f0f20 50%,#0d0d24 75%,#1a1030 100%);
 --gradient-accent:linear-gradient(135deg,#5BCEFA,#F5A9B8);
 --gradient-title:linear-gradient(135deg,#33ADE8,#EE97B0);
 --gradient-card-top:linear-gradient(135deg,#3daee6,#a8d8f2);
@@ -69,7 +70,6 @@ if(!location.hash)window.addEventListener('load',function(){window.scrollTo({top
 --text-3:#636368;
 --nav-bg:rgba(10,10,20,0.72);
 --nav-solid:#0a0a14;
---bg-fade:rgba(10,10,20,0);
 --nav-border:rgba(255,255,255,0.06);
 --border:rgba(255,255,255,0.06);
 --border-card:rgba(255,255,255,0.04);
@@ -140,14 +140,19 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
 @media (prefers-reduced-motion:reduce){
 html{scroll-behavior:auto}
 .nav,.nav-logo,.nav-links a,.theme-toggle,.hero-greeting,.hero-name,.hero-sub,.hero-desc,.hero-actions,.hero-scroll,.reveal{opacity:1 !important;transform:none !important;animation:none !important;transition:none !important}
-.hero-bg,.hero-blob,.footer-heart,.about-avatar,.toggle-icon,.hero-btn--primary::before{animation:none !important;transition:none !important}
+.hero-bg,.hero-bg::before,.hero-blob,.footer-heart,.about-avatar,.toggle-icon,.hero-btn--primary::before{animation:none !important;transition:none !important}
+.hero::after{transition:none !important}
 .theme-toggle::before{transition:none !important}
 .section-title::after{transition:none !important}
 }
 
 /* ===== Hero ===== */
 .hero{min-height:100vh;min-height:100svh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:0 24px}
-.hero-bg{position:absolute;top:0;left:0;right:0;bottom:0;inset:0;background:var(--gradient-hero);background-size:300% 300%;z-index:0;animation:gradientFlow 8s ease infinite;transition:opacity .8s ease}
+.hero-bg{position:absolute;top:0;left:0;right:0;bottom:0;inset:0;background:var(--gradient-hero-light);background-size:300% 300%;z-index:0;animation:gradientFlow 8s ease infinite}
+/* 深色渐变单独叠一层、用透明度淡入：渐变本身无法做过渡，
+   直接换 background-image 会瞬间跳变，和 body 底色的淡出对不上就露出一条色带 */
+.hero-bg::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:var(--gradient-hero-dark);background-size:300% 300%;opacity:0;transition:opacity .5s cubic-bezier(.4,0,.2,1);animation:gradientFlow 8s ease infinite}
+[data-theme="dark"] .hero-bg::before{opacity:1}
 .hero-blob{position:absolute;border-radius:50%;filter:blur(70px);opacity:.7;transition:opacity .8s ease}
 .hero-blob--blue{width:420px;height:420px;background:var(--blue-soft);top:-10%;left:-5%;animation:floatBlue 7s ease-in-out infinite}
 .hero-blob--pink{width:360px;height:360px;background:var(--pink-soft);bottom:-10%;right:-5%;animation:floatPink 6s ease-in-out infinite}
@@ -155,7 +160,9 @@ html{scroll-behavior:auto}
 .hero-blob-wrap{position:absolute;top:0;left:0;right:0;bottom:0;inset:0;z-index:0}
 .hero-rain{position:absolute;top:0;left:0;right:0;bottom:0;inset:0;z-index:1;pointer-events:none}
 /* 首屏底部与正文交界处做渐变过渡，避免彩色背景「一刀切」接上纯色内容区 */
-.hero::after{content:'';position:absolute;left:0;right:0;bottom:0;height:clamp(90px,16vh,180px);background:linear-gradient(180deg,var(--bg-fade),var(--bg));z-index:1;pointer-events:none}
+/* 用「纯色 + 蒙版」而不是渐变：背景色能跟 body 一起做过渡，渐变不能，
+   两者不同步就会在交界处拉出一条硬边 */
+.hero::after{content:'';position:absolute;left:0;right:0;bottom:0;height:clamp(90px,16vh,180px);background:var(--bg);-webkit-mask-image:linear-gradient(180deg,transparent,#000);mask-image:linear-gradient(180deg,transparent,#000);z-index:1;pointer-events:none;transition:background-color .5s cubic-bezier(.4,0,.2,1)}
 .hero-content{position:relative;z-index:2;text-align:center;max-width:720px}
 .hero-greeting{font-size:15px;font-weight:500;color:var(--text-2);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:16px;opacity:0;animation:fadeUp .8s .2s ease forwards}
 .hero-name{font-size:clamp(48px,8vw,88px);font-weight:800;letter-spacing:-0.03em;line-height:1.05;margin-bottom:12px;background:var(--gradient-title);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;opacity:0;animation:fadeUp .8s .4s ease forwards,textFlow 3s 1.2s ease infinite;filter:drop-shadow(0 3px 16px rgba(91,206,250,.45)) drop-shadow(0 0 34px rgba(245,169,184,.30))}
