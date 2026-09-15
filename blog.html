@@ -18,9 +18,12 @@
 <meta name="twitter:image" content="https://raindream.top/avatar.jpg">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23fff' stroke='%23F5A9B8' stroke-width='3'/%3E%3Cpath d='M32 12 C32 12, 18 14, 14 22 C10 30, 22 32, 28 28 C22 32, 12 38, 18 46 C24 54, 36 46, 38 40 C34 46, 34 56, 44 54 C54 52, 50 40, 44 36 C50 40, 58 36, 54 26 C50 16, 40 18, 36 24' fill='none' stroke='%23F5A9B8' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
 <script>
-(function(){var t=localStorage.getItem('theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})();
+(function(){
+if('scrollRestoration' in history)history.scrollRestoration='manual';
+var t=localStorage.getItem('theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');
+if(!location.hash)window.addEventListener('load',function(){window.scrollTo({top:0,left:0,behavior:'instant'});});
+})();
 </script>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <style>
 
 /* ===== CSS Variables ===== */
@@ -127,7 +130,7 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
 @media (prefers-reduced-motion:reduce){.theme-toggle,.theme-toggle::before,.toggle-icon{transition-duration:.01ms}.theme-toggle{animation:none;opacity:1}}
 
 /* ===== Hero ===== */
-.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:0 24px}
+.hero{min-height:100vh;min-height:100svh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:0 24px}
 .hero-bg{position:absolute;inset:0;background:var(--gradient-hero);background-size:300% 300%;z-index:0;animation:gradientFlow 8s ease infinite;transition:opacity .8s ease}
 .hero-blob{position:absolute;border-radius:50%;filter:blur(70px);opacity:.7;transition:opacity .8s ease}
 .hero-blob--blue{width:420px;height:420px;background:var(--blue-soft);top:-10%;left:-5%;animation:floatBlue 7s ease-in-out infinite}
@@ -334,6 +337,7 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
 <p class="footer-text">© 2026 RainDream · 雨梦 — Built with <span class="footer-heart">♥</span> and a lot of tea</p>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="posts.js"></script>
 <script>
 /* ===== Theme Toggle ===== */

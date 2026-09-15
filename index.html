@@ -18,7 +18,11 @@
 <meta name="twitter:description" content="记录思考、代码与生活的交集">
 <meta name="twitter:image" content="https://raindream.top/avatar.jpg">
 <script>
-(function(){var t=localStorage.getItem('theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})();
+(function(){
+if('scrollRestoration' in history)history.scrollRestoration='manual';
+var t=localStorage.getItem('theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');
+if(!location.hash)window.addEventListener('load',function(){window.scrollTo({top:0,left:0,behavior:'instant'});});
+})();
 </script>
 <style>
 /* ===== CSS Variables ===== */
@@ -125,7 +129,7 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
 @media (prefers-reduced-motion:reduce){.theme-toggle,.theme-toggle::before,.toggle-icon{transition-duration:.01ms}.theme-toggle{animation:none;opacity:1}}
 
 /* ===== Hero ===== */
-.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:0 24px}
+.hero{min-height:100vh;min-height:100svh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:0 24px}
 .hero-bg{position:absolute;inset:0;background:var(--gradient-hero);background-size:300% 300%;z-index:0;animation:gradientFlow 8s ease infinite;transition:opacity .8s ease}
 .hero-blob{position:absolute;border-radius:50%;filter:blur(70px);opacity:.7;transition:opacity .8s ease}
 .hero-blob--blue{width:420px;height:420px;background:var(--blue-soft);top:-10%;left:-5%;animation:floatBlue 7s ease-in-out infinite}
@@ -396,25 +400,36 @@ setTimeout(function(){circle.remove();},700);
 
 /* ===== Nav Scroll Effect ===== */
 var nav=document.getElementById('nav');
-window.addEventListener('scroll',function(){
-var y=window.scrollY;
+var backTopEl=document.getElementById('backTop');
+var navSections=[].slice.call(document.querySelectorAll('section[id]'));
+var navLinks=[].slice.call(document.querySelectorAll('.nav-links a[href^="#"]'));
+var sectionTops=[];
+function measureSections(){sectionTops=navSections.map(function(s){return s.offsetTop;});}
+measureSections();
+window.addEventListener('load',measureSections);
+window.addEventListener('resize',measureSections);
+var scrollPending=false;
+function onScroll(){
+scrollPending=false;
+var y=window.scrollY,i;
 nav.classList.toggle('scrolled',y>50);
-var sections=document.querySelectorAll('section[id]');
-var links=document.querySelectorAll('.nav-links a[href^="#"]');
 var current='';
-sections.forEach(function(s){
-if(window.scrollY>=s.offsetTop-100)current=s.getAttribute('id');
-});
-if(window.innerHeight+window.scrollY>=document.body.offsetHeight-80){
-var last=sections[sections.length-1];
-if(last)current=last.getAttribute('id');
+for(i=0;i<navSections.length;i++){
+if(y>=sectionTops[i]-100)current=navSections[i].getAttribute('id');
 }
-links.forEach(function(l){
-l.classList.remove('active');
-if(l.getAttribute('href')==='#'+current)l.classList.add('active');
-});
-document.getElementById('backTop').classList.toggle('visible',y>600);
-});
+if(navSections.length&&window.innerHeight+y>=document.body.offsetHeight-80){
+current=navSections[navSections.length-1].getAttribute('id');
+}
+for(i=0;i<navLinks.length;i++){
+var on=navLinks[i].getAttribute('href')==='#'+current;
+if(on!==navLinks[i].classList.contains('active'))navLinks[i].classList.toggle('active',on);
+}
+backTopEl.classList.toggle('visible',y>600);
+}
+window.addEventListener('scroll',function(){
+if(!scrollPending){scrollPending=true;requestAnimationFrame(onScroll);}
+},{passive:true});
+onScroll();
 
 /* ===== Back to Top ===== */
 document.getElementById('backTop').addEventListener('click',function(){
