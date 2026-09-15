@@ -151,9 +151,7 @@ html{scroll-behavior:auto}
 .hero-blob--pink{width:360px;height:360px;background:var(--pink-soft);bottom:-10%;right:-5%;animation:floatPink 6s ease-in-out infinite}
 .hero-blob--white{width:280px;height:280px;background:rgba(255,255,255,0.12);top:40%;left:50%;transform:translate(-50%,-50%);animation:floatWhite 9s ease-in-out infinite}
 .hero-blob-wrap{position:absolute;top:0;left:0;right:0;bottom:0;inset:0;z-index:0}
-.hero-rain{position:fixed;top:0;left:0;right:0;bottom:0;inset:0;z-index:0;pointer-events:none}
-/* 内容抬到雨滴层之上 */
-main,.footer{position:relative;z-index:1}
+.hero-rain{position:absolute;top:0;left:0;right:0;bottom:0;inset:0;z-index:1;pointer-events:none}
 .hero-content{position:relative;z-index:2;text-align:center;max-width:720px}
 .hero-greeting{font-size:15px;font-weight:500;color:var(--text-2);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:16px;opacity:0;animation:fadeUp .8s .2s ease forwards}
 .hero-name{font-size:clamp(48px,8vw,88px);font-weight:800;letter-spacing:-0.03em;line-height:1.05;margin-bottom:12px;background:var(--gradient-title);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;opacity:0;animation:fadeUp .8s .4s ease forwards,textFlow 3s 1.2s ease infinite;filter:drop-shadow(0 3px 16px rgba(91,206,250,.45)) drop-shadow(0 0 34px rgba(245,169,184,.30))}
@@ -311,8 +309,6 @@ main,.footer{position:relative;z-index:1}
 <noscript><style>.reveal{opacity:1 !important;transform:none !important}</style></noscript>
 </head>
 <body>
-<!-- 全页雨滴层：固定在视口上，铺满整页，垫在所有内容下面 -->
-<canvas class="hero-rain" id="rain" aria-hidden="true"></canvas>
 
 <!-- Navigation -->
 <nav class="nav" id="nav">
@@ -336,6 +332,7 @@ main,.footer{position:relative;z-index:1}
 <div class="hero-blob-wrap" id="blobWrap0"><div class="hero-blob hero-blob--blue"></div></div>
 <div class="hero-blob-wrap" id="blobWrap1"><div class="hero-blob hero-blob--pink"></div></div>
 <div class="hero-blob-wrap" id="blobWrap2"><div class="hero-blob hero-blob--white"></div></div>
+<canvas class="hero-rain" id="rain" aria-hidden="true"></canvas>
 <div class="hero-content">
 <p class="hero-greeting">Welcome to my world</p>
 <h1 class="hero-name">RainDream</h1>
@@ -513,64 +510,113 @@ window.scrollTo({top:top,behavior:'smooth'});
 (function(){
 var cv=document.getElementById('rain');
 if(!cv||!cv.getContext)return;
-var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)');
-if(rm&&rm.matches)return;              // 系统要求减少动效时不下雨
+var rmq=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)');
+if(rmq&&rmq.matches)return;              // 系统要求减少动效时不下雨
 var ctx=cv.getContext('2d');
 var dpr=Math.min(window.devicePixelRatio||1,2);
-var W=0,H=0,drops=[],rafId=null,running=false,last=0;
-function makeDrop(init){
+var W=0,H=0,drops=[],rafId=null,running=false,last=0,visible=true;
+
+// 雨滴按「颜色 x 透明度档 x 线宽」分组：每帧每组只设置一次画笔、只描一次路径，
+// 画笔状态切换从每帧 ~130 次降到最多 20 次
+var COLORS=['91,206,250','245,169,184'],ALPHAS=[0.15,0.22,0.29,0.36,0.44],WIDTHS=[1,1.5];
+var GROUPS=[],GBUF=[];
+for(var gi=0;gi<20;gi++){
+var ci=gi<10?0:1,rest=gi%10;
+GROUPS.push({c:COLORS[ci],a:ALPHAS[Math.floor(rest/2)],w:WIDTHS[rest%2]});
+GBUF.push([]);
+}
+function groupIdx(alpha,wd){
+var ai=0,best=9;
+for(var i=0;i<5;i++){var dd=Math.abs(ALPHAS[i]-alpha);if(dd<best){best=dd;ai=i;}}
+return ai*2+(wd>1.2?1:0);
+}
+function makeDrop(init,pink){
+var a=0.14+Math.random()*0.30,wd=Math.random()<0.3?1.5:1;
+var isPink=(pink===undefined)?(Math.random()<0.34):pink;
 return{
 x:Math.random()*(W+160)-80,
 y:init?Math.random()*H:-Math.random()*H*0.4-20,
 len:8+Math.random()*16,
 sp:380+Math.random()*460,
-a:0.14+Math.random()*0.30,
-pink:Math.random()<0.34,
-wd:Math.random()<0.3?1.5:1
+g:(isPink?10:0)+groupIdx(a,wd)
 };
 }
-function resize(){
-// canvas 是替换元素，靠 left/right 不会自动拉满，所以直接取视口尺寸
-W=window.innerWidth;H=window.innerHeight;
-if(!W||!H)return;
+function layout(){
+// canvas 是替换元素，left/right 不会把它拉满，所以按父元素尺寸显式设置
+var r=cv.parentNode.getBoundingClientRect();
+W=Math.round(r.width);H=Math.round(r.height);
+if(!W||!H)return false;
 cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);
 cv.style.width=W+'px';cv.style.height=H+'px';
 ctx.setTransform(dpr,0,0,dpr,0,0);
-var n=Math.max(28,Math.min(130,Math.round(W/9)));
+return true;
+}
+function seed(){
+var n=Math.max(24,Math.min(110,Math.round(W/10)));
 drops=[];
 for(var i=0;i<n;i++)drops.push(makeDrop(true));
+}
+function resize(){
+var oldW=W,oldH=H;
+if(!layout())return;
+// 宽度明显变化才重建雨滴；高度变化（手机地址栏收放）只把落到画面外的拨回来，
+// 避免滑动时整场雨突然重排，看起来像「闪了一下」
+if(!drops.length||Math.abs(W-oldW)>40){seed();}
+else if(H!==oldH){for(var i=0;i<drops.length;i++){if(drops[i].y>H)drops[i].y=Math.random()*H;}}
 }
 function frame(t){
 rafId=null;
 if(!last)last=t;
+// 步长封顶在一帧（约 16.7ms）：掉帧时雨只是走得稍慢，
+// 不会因为一帧间隔过大而「猛地加速」跳一下（高刷屏仍按真实节奏走）
 var dt=(t-last)/1000;last=t;
-if(dt>0.05)dt=0.05;
+if(dt>0.0175)dt=0.0175;
 ctx.clearRect(0,0,W,H);
-var m=(document.documentElement.getAttribute('data-theme')==='dark')?1:0.95;
-ctx.lineCap='round';
-for(var i=0;i<drops.length;i++){
+var m=(document.documentElement.getAttribute('data-theme')==='dark')?1:0.92;
+var i,g;
+for(g=0;g<20;g++){if(GBUF[g].length)GBUF[g].length=0;}
+for(i=0;i<drops.length;i++){
 var d=drops[i];
 d.y+=d.sp*dt;
 d.x-=d.sp*dt*0.18;
 if(d.y-d.len>H||d.x<-90){drops[i]=makeDrop(false);d=drops[i];}
-ctx.strokeStyle=(d.pink?'rgba(245,169,184,':'rgba(91,206,250,')+(d.a*m).toFixed(3)+')';
-ctx.lineWidth=d.wd;
+GBUF[d.g].push(d);
+}
+ctx.lineCap='round';
+for(g=0;g<20;g++){
+var arr=GBUF[g];
+if(!arr.length)continue;
+ctx.strokeStyle='rgba('+GROUPS[g].c+','+(GROUPS[g].a*m).toFixed(3)+')';
+ctx.lineWidth=GROUPS[g].w;
 ctx.beginPath();
-ctx.moveTo(d.x,d.y);
-ctx.lineTo(d.x+d.len*0.18,d.y-d.len);
+for(i=0;i<arr.length;i++){
+var q=arr[i];
+ctx.moveTo(q.x,q.y);
+ctx.lineTo(q.x+q.len*0.18,q.y-q.len);
+}
 ctx.stroke();
 }
 if(running)rafId=requestAnimationFrame(frame);
 }
 function start(){if(running)return;running=true;last=0;if(rafId===null)rafId=requestAnimationFrame(frame);}
 function stop(){running=false;if(rafId!==null){cancelAnimationFrame(rafId);rafId=null;}ctx.clearRect(0,0,W,H);}
-resize();
-window.addEventListener('resize',resize);
+if(!layout())return;
+seed();
+var resizeTimer=null;
+window.addEventListener('resize',function(){
+if(resizeTimer)clearTimeout(resizeTimer);
+resizeTimer=setTimeout(resize,150);   // 防抖：滑动时地址栏收放会连发 resize
+});
 window.addEventListener('load',resize);
-// 雨铺满整页，标签页可见就跑；切走就停，省电
-start();
+// 只在首屏可见时跑，滚下去就停
+if('IntersectionObserver' in window){
+new IntersectionObserver(function(es){
+visible=es[0].isIntersecting;
+if(visible)start();else stop();
+},{threshold:0}).observe(cv.parentNode);
+}else{start();}
 document.addEventListener('visibilitychange',function(){
-if(document.hidden)stop();else start();
+if(document.hidden)stop();else if(visible)start();
 });
 })();
 
