@@ -362,6 +362,11 @@ window.addEventListener('scroll',function(){
 nav.classList.toggle('scrolled',window.scrollY>50);
 });
 
+/* ===== Intersection Observer ===== */
+var observer=new IntersectionObserver(function(entries){
+entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible');});
+},{threshold:0.1,rootMargin:'0px 0px -20px 0px'});
+
 /* ===== Render Blog Feed ===== */
 var feed=document.getElementById('blogFeed');
 var searchInput=document.getElementById('blogSearch');
@@ -395,21 +400,18 @@ post.innerHTML=
 '<div class="blog-post-body-wrap"><div class="blog-post-body">'+bodyHtml+'</div></div>';
 post.addEventListener('click',function(e){
 if(e.target.tagName==='A')return;
+var sel=window.getSelection();
+if(sel&&String(sel).length>0)return;
 post.classList.toggle('open');
 });
 feed.appendChild(post);
 });
 noResults.style.display=found===0?'block':'none';
-setTimeout(function(){
 document.querySelectorAll('.blog-post.reveal').forEach(function(el){observer.observe(el);});
-},50);
 }
 
 searchInput.addEventListener('input',function(){renderPosts(this.value);});
-renderPosts('');/* ===== Intersection Observer ===== */
-var observer=new IntersectionObserver(function(entries){
-entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible');});
-},{threshold:0.1,rootMargin:'0px 0px -20px 0px'});
+renderPosts('');
 
 </script>
 </body>

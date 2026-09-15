@@ -268,7 +268,6 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
 .about-text p{font-size:15px}
 }
 </style>
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
 
@@ -374,9 +373,7 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
 <!-- Back to Top -->
 <button class="back-top" id="backTop" aria-label="返回顶部">↑</button>
 
-<script src="posts.js"></script>
 <script>
-/* ===== Modal ===== */
 /* ===== Theme Toggle ===== */
 var themeToggle=document.getElementById('themeToggle');
 themeToggle.addEventListener('click',function(){
@@ -448,12 +445,18 @@ window.scrollTo({top:top,behavior:'smooth'});
 /* ===== Mouse Parallax ===== */
 var hero=document.querySelector('.hero');
 var wraps=[document.getElementById('blobWrap0'),document.getElementById('blobWrap1'),document.getElementById('blobWrap2')];
-var mx=0,my=0,tx=0,ty=0;
+var mx=0,my=0,tx=0,ty=0,rafId=null;
 var depths=[-80,60,-55];
-hero.addEventListener('mousemove',function(e){tx=(e.clientX/window.innerWidth-0.5)*2;ty=(e.clientY/window.innerHeight-0.5)*2;});
-hero.addEventListener('touchmove',function(e){var t=e.touches[0];tx=(t.clientX/window.innerWidth-0.5)*2;ty=(t.clientY/window.innerHeight-0.5)*2;},{passive:true});
-hero.addEventListener('touchend',function(){tx=0;ty=0;});
-(function loop(){mx+=(tx-mx)*0.07;my+=(ty-my)*0.07;wraps.forEach(function(w,i){if(w)w.style.transform='translate('+(mx*depths[i])+'px,'+(my*depths[i])+'px)';});requestAnimationFrame(loop);})();
+function step(){
+rafId=null;
+mx+=(tx-mx)*0.07;my+=(ty-my)*0.07;
+wraps.forEach(function(w,i){if(w)w.style.transform='translate('+(mx*depths[i])+'px,'+(my*depths[i])+'px)';});
+if(Math.abs(tx-mx)>0.002||Math.abs(ty-my)>0.002)rafId=requestAnimationFrame(step);
+}
+function wake(){if(rafId===null)rafId=requestAnimationFrame(step);}
+hero.addEventListener('mousemove',function(e){tx=(e.clientX/window.innerWidth-0.5)*2;ty=(e.clientY/window.innerHeight-0.5)*2;wake();});
+hero.addEventListener('touchmove',function(e){var t=e.touches[0];tx=(t.clientX/window.innerWidth-0.5)*2;ty=(t.clientY/window.innerHeight-0.5)*2;wake();},{passive:true});
+hero.addEventListener('touchend',function(){tx=0;ty=0;wake();});
 </script>
 </body>
 </html>
