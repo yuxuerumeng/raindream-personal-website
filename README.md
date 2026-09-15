@@ -2,7 +2,7 @@
 
 > 在代码与文字之间寻找真实的自己。
 
-🔗 [i.raindream.top](https://i.raindream.top)
+🔗 [raindream.top](https://raindream.top)
 
 ## 项目结构
 
