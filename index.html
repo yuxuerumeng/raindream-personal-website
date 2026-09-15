@@ -634,7 +634,11 @@ if('IntersectionObserver' in window){
 var host=cv.parentNode;
 new IntersectionObserver(function(es){
 var v=es[0].isIntersecting;
-if(v!==visible){visible=v;if(v)start();else stop();}
+visible=v;
+// 注意：这里必须按「可见就启动」判断，不能写成「状态变化才启动」——
+// visible 初值就是 true，首次回调 v===visible，那样会导致 start() 永远不被调用
+if(v){if(!running)start();}
+else{if(running)stop();}
 // 首屏滚出视口后，连同里面的光斑/渐变动画一起暂停
 host.classList.toggle('hero--offscreen',!v);
 },{threshold:0}).observe(host);
