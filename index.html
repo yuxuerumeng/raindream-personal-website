@@ -35,6 +35,7 @@ if(!location.hash)window.addEventListener('load',function(){window.scrollTo({top
 --text-2:#6e6e73;
 --text-3:#aeaeb2;
 --nav-bg:rgba(245,245,247,0.64);
+--nav-solid:#f5f5f7;
 --nav-border:rgba(0,0,0,0.06);
 --border:rgba(0,0,0,0.06);
 --border-card:rgba(0,0,0,0.04);
@@ -65,6 +66,7 @@ if(!location.hash)window.addEventListener('load',function(){window.scrollTo({top
 --text-2:#98989d;
 --text-3:#636368;
 --nav-bg:rgba(10,10,20,0.72);
+--nav-solid:#0a0a14;
 --nav-border:rgba(255,255,255,0.06);
 --border:rgba(255,255,255,0.06);
 --border-card:rgba(255,255,255,0.04);
@@ -130,16 +132,24 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
 .theme-toggle:active::before{transform:translateX(0) scale(.94)}
 [data-theme="dark"] .theme-toggle:active::before{transform:translateX(22px) scale(.94)}
 .theme-toggle:focus-visible{outline:none;box-shadow:inset 0 1px 2px rgba(0,0,0,.07),inset 0 0 0 1px rgba(0,0,0,.045),0 0 0 3px var(--blue-soft)}
-@media (prefers-reduced-motion:reduce){.theme-toggle,.theme-toggle::before,.toggle-icon{transition-duration:.01ms}.theme-toggle{animation:none;opacity:1}}
+/* 尊重系统「减少动态效果」：关掉进场、漂浮、心跳等所有动画 */
+@media (prefers-reduced-motion:reduce){
+html{scroll-behavior:auto}
+.nav,.nav-logo,.nav-links a,.theme-toggle,.hero-greeting,.hero-name,.hero-sub,.hero-desc,.hero-actions,.hero-scroll,.reveal{opacity:1 !important;transform:none !important;animation:none !important;transition:none !important}
+.hero-bg,.hero-blob,.footer-heart,.about-avatar,.toggle-icon{animation:none !important;transition:none !important}
+.theme-toggle::before{transition:none !important}
+.section-title::after{transition:none !important}
+}
 
 /* ===== Hero ===== */
 .hero{min-height:100vh;min-height:100svh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:0 24px}
-.hero-bg{position:absolute;inset:0;background:var(--gradient-hero);background-size:300% 300%;z-index:0;animation:gradientFlow 8s ease infinite;transition:opacity .8s ease}
+.hero-bg{position:absolute;top:0;left:0;right:0;bottom:0;inset:0;background:var(--gradient-hero);background-size:300% 300%;z-index:0;animation:gradientFlow 8s ease infinite;transition:opacity .8s ease}
 .hero-blob{position:absolute;border-radius:50%;filter:blur(70px);opacity:.7;transition:opacity .8s ease}
 .hero-blob--blue{width:420px;height:420px;background:var(--blue-soft);top:-10%;left:-5%;animation:floatBlue 7s ease-in-out infinite}
 .hero-blob--pink{width:360px;height:360px;background:var(--pink-soft);bottom:-10%;right:-5%;animation:floatPink 6s ease-in-out infinite}
 .hero-blob--white{width:280px;height:280px;background:rgba(255,255,255,0.12);top:40%;left:50%;transform:translate(-50%,-50%);animation:floatWhite 9s ease-in-out infinite}
-.hero-blob-wrap{position:absolute;inset:0;z-index:0}
+.hero-blob-wrap{position:absolute;top:0;left:0;right:0;bottom:0;inset:0;z-index:0}
+.hero-rain{position:absolute;top:0;left:0;right:0;bottom:0;inset:0;z-index:1;pointer-events:none}
 .hero-content{position:relative;z-index:2;text-align:center;max-width:720px}
 .hero-greeting{font-size:15px;font-weight:500;color:var(--text-2);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:16px;opacity:0;animation:fadeUp .8s .2s ease forwards}
 .hero-name{font-size:clamp(48px,8vw,88px);font-weight:800;letter-spacing:-0.03em;line-height:1.05;margin-bottom:12px;background:var(--gradient-accent);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;opacity:0;animation:fadeUp .8s .4s ease forwards,textFlow 3s 1.2s ease infinite}
@@ -283,7 +293,13 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
 .about-avatar{width:128px;height:128px}
 .about-text p{font-size:15px}
 }
+/* 老浏览器（如 Firefox 102 及更早）不支持背景模糊，改用不透明底色，避免半透明导航看不清 */
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+.nav{background:var(--nav-solid)}
+.blog-post,.blog-card,.contact-link,.about-visual,.blog-search input{background:var(--bg-card-solid)}
+}
 </style>
+<noscript><style>.reveal{opacity:1 !important;transform:none !important}</style></noscript>
 </head>
 <body>
 
@@ -309,6 +325,7 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
 <div class="hero-blob-wrap" id="blobWrap0"><div class="hero-blob hero-blob--blue"></div></div>
 <div class="hero-blob-wrap" id="blobWrap1"><div class="hero-blob hero-blob--pink"></div></div>
 <div class="hero-blob-wrap" id="blobWrap2"><div class="hero-blob hero-blob--white"></div></div>
+<canvas class="hero-rain" id="rain" aria-hidden="true"></canvas>
 <div class="hero-content">
 <p class="hero-greeting">Welcome to my world</p>
 <h1 class="hero-name">RainDream</h1>
@@ -396,6 +413,9 @@ themeToggle.addEventListener('click',function(){
 var html=document.documentElement;
 var current=html.getAttribute('data-theme');
 var next=current==='dark'?'light':'dark';
+if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+html.setAttribute('data-theme',next);localStorage.setItem('theme',next);return;
+}
 var rect=themeToggle.getBoundingClientRect();
 var size=Math.hypot(window.innerWidth,window.innerHeight)*2;
 var circle=document.createElement('div');
@@ -449,15 +469,24 @@ window.scrollTo({top:0,behavior:'smooth'});
 });
 
 /* ===== Intersection Observer ===== */
-var observer=new IntersectionObserver(function(entries){
+// 老浏览器（不含 IntersectionObserver）直接显示所有内容，避免整页停在 opacity:0
+var revealEls=[].slice.call(document.querySelectorAll('.reveal'));
+var observer=null;
+if('IntersectionObserver' in window){
+observer=new IntersectionObserver(function(entries){
 entries.forEach(function(e){
 if(e.isIntersecting)e.target.classList.add('visible');
 });
 },{threshold:0.15,rootMargin:'0px 0px -40px 0px'});
-document.querySelectorAll('.reveal').forEach(function(el){observer.observe(el);});
+for(var ri=0;ri<revealEls.length;ri++)observer.observe(revealEls[ri]);
+}else{
+for(var rj=0;rj<revealEls.length;rj++)revealEls[rj].classList.add('visible');
+}
 
 /* ===== Smooth scroll for nav links + hero buttons ===== */
-document.querySelectorAll('.nav-links a[href^="#"]').forEach(function(a){
+var jumpLinks=[].slice.call(document.querySelectorAll('.nav-links a[href^="#"]'));
+for(var li=0;li<jumpLinks.length;li++){
+(function(a){
 a.addEventListener('click',function(e){
 e.preventDefault();
 var target=document.querySelector(this.getAttribute('href'));
@@ -466,11 +495,84 @@ var top=target.getBoundingClientRect().top+window.pageYOffset-80;
 window.scrollTo({top:top,behavior:'smooth'});
 }
 });
-});
+})(jumpLinks[li]);
+}
 
+
+/* ===== Rain ===== */
+(function(){
+var cv=document.getElementById('rain');
+if(!cv||!cv.getContext)return;
+var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)');
+if(rm&&rm.matches)return;              // 系统要求减少动效时不下雨
+var ctx=cv.getContext('2d');
+var dpr=Math.min(window.devicePixelRatio||1,2);
+var W=0,H=0,drops=[],rafId=null,running=false,last=0,heroVisible=true;
+function makeDrop(init){
+return{
+x:Math.random()*(W+160)-80,
+y:init?Math.random()*H:-Math.random()*H*0.4-20,
+len:8+Math.random()*16,
+sp:380+Math.random()*460,
+a:0.14+Math.random()*0.30,
+pink:Math.random()<0.34,
+wd:Math.random()<0.3?1.5:1
+};
+}
+function resize(){
+var r=cv.parentNode.getBoundingClientRect();
+W=Math.round(r.width);H=Math.round(r.height);
+if(!W||!H)return;
+cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);
+cv.style.width=W+'px';cv.style.height=H+'px';
+ctx.setTransform(dpr,0,0,dpr,0,0);
+var n=Math.max(28,Math.min(130,Math.round(W/9)));
+drops=[];
+for(var i=0;i<n;i++)drops.push(makeDrop(true));
+}
+function frame(t){
+rafId=null;
+if(!last)last=t;
+var dt=(t-last)/1000;last=t;
+if(dt>0.05)dt=0.05;
+ctx.clearRect(0,0,W,H);
+var m=(document.documentElement.getAttribute('data-theme')==='dark')?1:0.8;
+ctx.lineCap='round';
+for(var i=0;i<drops.length;i++){
+var d=drops[i];
+d.y+=d.sp*dt;
+d.x-=d.sp*dt*0.18;
+if(d.y-d.len>H||d.x<-90){drops[i]=makeDrop(false);d=drops[i];}
+ctx.strokeStyle=(d.pink?'rgba(245,169,184,':'rgba(91,206,250,')+(d.a*m).toFixed(3)+')';
+ctx.lineWidth=d.wd;
+ctx.beginPath();
+ctx.moveTo(d.x,d.y);
+ctx.lineTo(d.x+d.len*0.18,d.y-d.len);
+ctx.stroke();
+}
+if(running)rafId=requestAnimationFrame(frame);
+}
+function start(){if(running)return;running=true;last=0;if(rafId===null)rafId=requestAnimationFrame(frame);}
+function stop(){running=false;if(rafId!==null){cancelAnimationFrame(rafId);rafId=null;}ctx.clearRect(0,0,W,H);}
+resize();
+window.addEventListener('resize',resize);
+window.addEventListener('load',resize);
+// 只在 hero 进入视口时跑，滚下去就停，省电
+if('IntersectionObserver' in window){
+new IntersectionObserver(function(es){
+heroVisible=es[0].isIntersecting;
+if(heroVisible)start();else stop();
+},{threshold:0}).observe(cv.parentNode);
+}else{start();}
+document.addEventListener('visibilitychange',function(){
+if(document.hidden)stop();else if(heroVisible)start();
+});
+})();
 
 /* ===== Mouse Parallax ===== */
 var hero=document.querySelector('.hero');
+var reduceMotion=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if(hero&&!reduceMotion){
 var wraps=[document.getElementById('blobWrap0'),document.getElementById('blobWrap1'),document.getElementById('blobWrap2')];
 var mx=0,my=0,tx=0,ty=0,rafId=null;
 var depths=[-80,60,-55];
@@ -484,6 +586,7 @@ function wake(){if(rafId===null)rafId=requestAnimationFrame(step);}
 hero.addEventListener('mousemove',function(e){tx=(e.clientX/window.innerWidth-0.5)*2;ty=(e.clientY/window.innerHeight-0.5)*2;wake();});
 hero.addEventListener('touchmove',function(e){var t=e.touches[0];tx=(t.clientX/window.innerWidth-0.5)*2;ty=(t.clientY/window.innerHeight-0.5)*2;wake();},{passive:true});
 hero.addEventListener('touchend',function(){tx=0;ty=0;wake();});
+}
 </script>
 </body>
 </html>

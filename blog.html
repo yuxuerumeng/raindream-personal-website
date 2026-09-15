@@ -36,6 +36,7 @@ if(!location.hash)window.addEventListener('load',function(){window.scrollTo({top
 --text-2:#6e6e73;
 --text-3:#aeaeb2;
 --nav-bg:rgba(245,245,247,0.64);
+--nav-solid:#f5f5f7;
 --nav-border:rgba(0,0,0,0.06);
 --border:rgba(0,0,0,0.06);
 --border-card:rgba(0,0,0,0.04);
@@ -66,6 +67,7 @@ if(!location.hash)window.addEventListener('load',function(){window.scrollTo({top
 --text-2:#98989d;
 --text-3:#636368;
 --nav-bg:rgba(10,10,20,0.72);
+--nav-solid:#0a0a14;
 --nav-border:rgba(255,255,255,0.06);
 --border:rgba(255,255,255,0.06);
 --border-card:rgba(255,255,255,0.04);
@@ -131,16 +133,23 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
 .theme-toggle:active::before{transform:translateX(0) scale(.94)}
 [data-theme="dark"] .theme-toggle:active::before{transform:translateX(22px) scale(.94)}
 .theme-toggle:focus-visible{outline:none;box-shadow:inset 0 1px 2px rgba(0,0,0,.07),inset 0 0 0 1px rgba(0,0,0,.045),0 0 0 3px var(--blue-soft)}
-@media (prefers-reduced-motion:reduce){.theme-toggle,.theme-toggle::before,.toggle-icon{transition-duration:.01ms}.theme-toggle{animation:none;opacity:1}}
+/* 尊重系统「减少动态效果」：关掉进场、漂浮、心跳等所有动画 */
+@media (prefers-reduced-motion:reduce){
+html{scroll-behavior:auto}
+.nav,.nav-logo,.nav-links a,.theme-toggle,.hero-greeting,.hero-name,.hero-sub,.hero-desc,.hero-actions,.hero-scroll,.reveal{opacity:1 !important;transform:none !important;animation:none !important;transition:none !important}
+.hero-bg,.hero-blob,.footer-heart,.about-avatar,.toggle-icon{animation:none !important;transition:none !important}
+.theme-toggle::before{transition:none !important}
+.section-title::after{transition:none !important}
+}
 
 /* ===== Hero ===== */
 .hero{min-height:100vh;min-height:100svh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:0 24px}
-.hero-bg{position:absolute;inset:0;background:var(--gradient-hero);background-size:300% 300%;z-index:0;animation:gradientFlow 8s ease infinite;transition:opacity .8s ease}
+.hero-bg{position:absolute;top:0;left:0;right:0;bottom:0;inset:0;background:var(--gradient-hero);background-size:300% 300%;z-index:0;animation:gradientFlow 8s ease infinite;transition:opacity .8s ease}
 .hero-blob{position:absolute;border-radius:50%;filter:blur(70px);opacity:.7;transition:opacity .8s ease}
 .hero-blob--blue{width:420px;height:420px;background:var(--blue-soft);top:-10%;left:-5%;animation:floatBlue 7s ease-in-out infinite}
 .hero-blob--pink{width:360px;height:360px;background:var(--pink-soft);bottom:-10%;right:-5%;animation:floatPink 6s ease-in-out infinite}
 .hero-blob--white{width:280px;height:280px;background:rgba(255,255,255,0.12);top:40%;left:50%;transform:translate(-50%,-50%);animation:floatWhite 9s ease-in-out infinite}
-.hero-blob-wrap{position:absolute;inset:0;z-index:0}
+.hero-blob-wrap{position:absolute;top:0;left:0;right:0;bottom:0;inset:0;z-index:0}
 .hero-content{position:relative;z-index:2;text-align:center;max-width:720px}
 .hero-greeting{font-size:15px;font-weight:500;color:var(--text-2);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:16px;opacity:0;animation:fadeUp .8s .2s ease forwards}
 .hero-name{font-size:clamp(48px,8vw,88px);font-weight:800;letter-spacing:-0.03em;line-height:1.05;margin-bottom:12px;background:var(--gradient-accent);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;opacity:0;animation:fadeUp .8s .4s ease forwards,textFlow 3s 1.2s ease infinite}
@@ -321,7 +330,13 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
 .blog-post{padding:24px}
 .blog-page .section{padding:40px 20px}
 }
+/* 老浏览器（如 Firefox 102 及更早）不支持背景模糊，改用不透明底色，避免半透明导航看不清 */
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+.nav{background:var(--nav-solid)}
+.blog-post,.blog-card,.contact-link,.about-visual,.blog-search input{background:var(--bg-card-solid)}
+}
 </style>
+<noscript><style>.reveal{opacity:1 !important;transform:none !important}</style></noscript>
 </head>
 <body>
 
@@ -368,6 +383,9 @@ themeToggle.addEventListener('click',function(){
 var html=document.documentElement;
 var current=html.getAttribute('data-theme');
 var next=current==='dark'?'light':'dark';
+if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+html.setAttribute('data-theme',next);localStorage.setItem('theme',next);return;
+}
 var rect=themeToggle.getBoundingClientRect();
 var size=Math.hypot(window.innerWidth,window.innerHeight)*2;
 var circle=document.createElement('div');
@@ -389,9 +407,10 @@ nav.classList.toggle('scrolled',window.scrollY>50);
 });
 
 /* ===== Intersection Observer ===== */
-var observer=new IntersectionObserver(function(entries){
+// 老浏览器没有 IntersectionObserver 时降级为直接显示
+var observer=('IntersectionObserver' in window)?new IntersectionObserver(function(entries){
 entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible');});
-},{threshold:0.1,rootMargin:'0px 0px -20px 0px'});
+},{threshold:0.1,rootMargin:'0px 0px -20px 0px'}):null;
 
 /* ===== Render Blog Feed ===== */
 var feed=document.getElementById('blogFeed');
@@ -445,7 +464,10 @@ if(ev.propertyName==='max-height'&&post.classList.contains('open'))wrap.style.ma
 feed.appendChild(post);
 });
 noResults.style.display=found===0?'block':'none';
-document.querySelectorAll('.blog-post.reveal').forEach(function(el){observer.observe(el);});
+var revealPosts=document.querySelectorAll('.blog-post.reveal');
+for(var qi=0;qi<revealPosts.length;qi++){
+if(observer)observer.observe(revealPosts[qi]);else revealPosts[qi].classList.add('visible');
+}
 }
 
 searchInput.addEventListener('input',function(){renderPosts(this.value);});
