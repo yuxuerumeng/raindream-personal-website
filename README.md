@@ -10,7 +10,8 @@
 ├── index.html      # 主页
 ├── blog.html       # 博客页
 ├── posts.js        # 文章数据
-└── avatar.jpg      # 头像
+├── sw.js           # 离线缓存 Service Worker
+└── avatar.webp     # 头像
 ```
 
 ## 写博客
@@ -36,7 +37,7 @@
 - **联系方式** → 搜索 `contact-grid`，找到四个 `<a href="...">` 标签改链接
 - **关于我** → 搜索 `关于我` 或 `about-text`，直接改段落文字
 - **配色** → 搜索 `:root`，蓝粉颜色在 CSS 变量 `--blue` 和 `--pink` 里
-- **头像** → 替换 `avatar.jpg` 文件，保持同名即可
+- **头像** → 替换 `avatar.webp` 文件，保持同名即可
 
 HTML 里的 `<style>` 标签负责样式，`<script>` 标签负责交互逻辑。
 
