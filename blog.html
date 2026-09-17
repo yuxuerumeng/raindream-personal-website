@@ -17,6 +17,8 @@
 <meta name="twitter:title" content="文章 · RainDream">
 <meta name="twitter:description" content="RainDream 雨梦的文章">
 <meta name="twitter:image" content="https://raindream.top/avatar.jpg">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23fff' stroke='%23F5A9B8' stroke-width='3'/%3E%3Cpath d='M32 12 C32 12, 18 14, 14 22 C10 30, 22 32, 28 28 C22 32, 12 38, 18 46 C24 54, 36 46, 38 40 C34 46, 34 56, 44 54 C54 52, 50 40, 44 36 C50 40, 58 36, 54 26 C50 16, 40 18, 36 24' fill='none' stroke='%23F5A9B8' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
 <script>
 (function(){
@@ -110,6 +112,9 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
 .logo-mark{flex:0 0 auto;transition:transform .55s cubic-bezier(.32,.72,0,1)}
 .logo-text{background:var(--gradient-title);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:textFlow 6s 1.2s ease infinite;filter:drop-shadow(0 0 7px rgba(91,206,250,.35))}
 .nav-logo:hover .logo-mark{transform:translateY(-2px) rotate(-7deg)}
+.nav-burger{display:none;width:36px;height:36px;flex:0 0 auto;align-items:center;justify-content:center;border-radius:10px;color:var(--text);transition:background .3s ease,color .3s ease}
+.nav-burger:hover{background:var(--tag-bg)}
+.nav-burger:focus-visible{outline:none;box-shadow:0 0 0 3px var(--blue-soft)}
 .nav-links{display:flex;align-items:center;gap:28px}.nav-links a{opacity:0;animation:navFadeIn .5s ease forwards}.nav-links a:nth-child(1){animation-delay:.35s}.nav-links a:nth-child(2){animation-delay:.4s}.nav-links a:nth-child(3){animation-delay:.45s}.nav-links a:nth-child(4){animation-delay:.5s}
 .nav-links a{font-size:13px;font-weight:500;color:var(--text-2);letter-spacing:0.01em;transition:color .3s ease;position:relative}
 .nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1.5px;background:var(--gradient-accent);border-radius:1px;transition:width .3s ease}
@@ -220,6 +225,11 @@ html{scroll-behavior:auto}
 .theme-circle{position:fixed;z-index:9999;border-radius:50%;pointer-events:none;transform:scale(0);opacity:.15;background:var(--text);transition:transform .5s cubic-bezier(.4,0,.2,1),opacity .4s ease}
 
 /* ===== Responsive ===== */
+@media(max-width:1024px){
+.about-grid{gap:48px}
+.section{padding:96px 28px}
+}
+
 @media(max-width:768px){
 .nav-links{gap:18px}
 .nav-links a{font-size:12px}
@@ -232,6 +242,16 @@ html{scroll-behavior:auto}
 .hero-name{font-size:42px}
 .nav-links{gap:12px}
 .nav-links a{font-size:12px}
+}
+
+@media(max-width:640px){
+.nav-burger{display:inline-flex}
+.nav-links{position:absolute;top:100%;left:0;right:0;display:flex;flex-direction:column;align-items:stretch;gap:0;background:var(--nav-solid);border-bottom:1px solid var(--nav-border);box-shadow:var(--shadow-lg);padding:6px 16px 12px;opacity:0;pointer-events:none;transform:translateY(-10px);transition:opacity .2s ease,transform .2s ease}
+.nav-links.open{opacity:1;transform:none;pointer-events:auto}
+.nav-links a{opacity:1;animation:none;padding:13px 2px;font-size:15px;border-bottom:1px solid var(--nav-border)}
+.nav-links a::after{display:none}
+.nav-links .theme-toggle{opacity:1;animation:none;align-self:center;margin-top:14px}
+.nav-logo{font-size:17px}
 }
 
 
@@ -264,11 +284,9 @@ html{scroll-behavior:auto}
 .blog-post.open .blog-post-toggle{transform:rotate(180deg);background:var(--blue-soft);border-color:transparent;color:var(--text)}
 .blog-post-body-wrap{max-height:0;overflow:hidden;transition:max-height .5s cubic-bezier(.4,0,.2,1),opacity .4s ease,margin .4s ease;opacity:0;margin-top:0}
 .blog-post.open .blog-post-body-wrap{opacity:1;margin-top:20px}
-.blog-post-divider{margin:16px 0 0}
-.blog-post.open .blog-post-divider{margin:16px 0}
-
 .blog-post-divider{height:1px;background:var(--border-card);margin:28px 0}
-.blog-post-body{font-size:17px;line-height:2.1;color:var(--text-2)}
+.blog-post-body{font-size:17px;line-height:2.1;color:var(--text-2);overflow-wrap:break-word}
+.blog-post-plain{white-space:pre-wrap;overflow-wrap:anywhere}
 .blog-post-body p{margin-bottom:18px}
 .blog-post-body h1,.blog-post-body h2,.blog-post-body h3{color:var(--text);font-weight:700;letter-spacing:-0.01em;line-height:1.45;margin:32px 0 14px}
 .blog-post-body h1{font-size:24px}
@@ -285,6 +303,10 @@ html{scroll-behavior:auto}
 .blog-post-body strong{color:var(--text);font-weight:600}
 .blog-post-body blockquote{margin:0 0 18px;padding:2px 0 2px 18px;border-left:2px solid var(--blue-soft)}
 .blog-post-body code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em;background:var(--tag-bg);padding:2px 6px;border-radius:6px}
+.blog-post-body pre{background:var(--tag-bg);border:1px solid var(--border-card);padding:16px;border-radius:12px;overflow-x:auto;line-height:1.7;margin:0 0 18px}
+.blog-post-body pre code{background:none;padding:0;font-size:.88em}
+.blog-post-body table{display:block;width:100%;max-width:100%;overflow-x:auto;border-collapse:collapse;margin:0 0 18px}
+.blog-post-body img{height:auto;border-radius:12px}
 .blog-post-body hr{border:0;border-top:1px solid var(--border);margin:28px 0}
 .blog-back{display:inline-flex;align-items:center;gap:6px;margin-bottom:40px;font-size:14px;font-weight:500;color:var(--text-2);transition:color .3s ease}
 .blog-back:hover{color:var(--text)}
@@ -297,6 +319,19 @@ html{scroll-behavior:auto}
 @media(max-width:768px){
 .blog-post{padding:24px}
 .blog-page .section{padding:40px 20px}
+.blog-post-header{gap:10px}
+.blog-post-toggle{width:26px;height:26px}
+.blog-search input{font-size:14px}
+.blog-back{margin-bottom:28px}
+}
+
+@media(max-width:480px){
+.blog-post{padding:20px 16px}
+.blog-post-title{font-size:24px}
+.blog-post-body{font-size:16px;line-height:1.95}
+.blog-post-body ul,.blog-post-body ol{padding-left:22px}
+.blog-search input{padding-left:40px;font-size:14px}
+.blog-page .section{padding:28px 14px}
 }
 /* 老浏览器（如 Firefox 102 及更早）不支持背景模糊，改用不透明底色，避免半透明导航看不清 */
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
@@ -310,9 +345,10 @@ html{scroll-behavior:auto}
 
 <nav class="nav" id="nav">
 <a href="index.html" class="nav-logo"><svg class="logo-mark" width="19" height="19" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="logoGrad" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="#5BCEFA"/><stop offset="100%" stop-color="#F5A9B8"/></linearGradient></defs><path d="M12 2.4C12 2.4 6 9.6 6 13.6a6 6 0 0 0 12 0c0-4-6-11.2-6-11.2z" fill="url(#logoGrad)"/></svg><span class="logo-text">RainDream</span></a>
-<div class="nav-links">
+<button class="nav-burger" id="navBurger" aria-label="打开菜单" aria-expanded="false"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+<div class="nav-links" id="navLinks">
 <a href="index.html">首页</a>
-<a href="#about">关于</a>
+<a href="index.html#about">关于</a>
 <a href="blog.html" class="active">文章</a>
 <a href="index.html#contact">联系</a>
 <button class="theme-toggle" id="themeToggle" role="switch" aria-label="切换深浅色模式" aria-checked="false">
@@ -370,6 +406,26 @@ setTimeout(function(){applyTheme(next);circle.style.opacity='0';},350);
 setTimeout(function(){circle.remove();},700);
 });
 
+/* ===== Mobile Navigation ===== */
+var navBurger=document.getElementById('navBurger');
+var navMenu=document.getElementById('navLinks');
+function closeMobileMenu(){
+if(navMenu)navMenu.classList.remove('open');
+if(navBurger)navBurger.setAttribute('aria-expanded','false');
+}
+if(navBurger&&navMenu){
+navBurger.addEventListener('click',function(){
+var open=navMenu.classList.toggle('open');
+navBurger.setAttribute('aria-expanded',open?'true':'false');
+});
+navMenu.addEventListener('click',function(e){
+if(e.target.closest&&e.target.closest('a'))closeMobileMenu();
+});
+window.addEventListener('resize',function(){
+if(window.innerWidth>640)closeMobileMenu();
+});
+}
+
 /* ===== Nav Scroll Effect ===== */
 var nav=document.getElementById('nav');
 window.addEventListener('scroll',function(){
@@ -390,21 +446,98 @@ var noResults=document.getElementById('blogNoResults');
 if(typeof marked!=='undefined'){marked.setOptions({breaks:true,gfm:true});}
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 // 轻量净化：去掉脚本/内联事件/javascript: 链接（正文是作者自写的 Markdown，这里只做兜底）
-function sanitizeHtml(h){return String(h)
-.replace(/<script[\s\S]*?<\/script>/gi,'')
-.replace(/<iframe[\s\S]*?<\/iframe>/gi,'')
-.replace(/\son\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi,'')
-.replace(/(href|src)\s*=\s*(["']?)\s*javascript:[^\s>]*/gi,'$1=$2#');}
+function sanitizeHtml(h){
+var allowedTags={
+A:1,P:1,BR:1,HR:1,H1:1,H2:1,H3:1,H4:1,H5:1,H6:1,
+UL:1,OL:1,LI:1,STRONG:1,EM:1,DEL:1,S:1,BLOCKQUOTE:1,
+CODE:1,PRE:1,IMG:1,TABLE:1,THEAD:1,TBODY:1,TR:1,TH:1,TD:1,
+DIV:1,SPAN:1
+};
+var allowedAttrs={
+A:{href:1,title:1},
+IMG:{src:1,alt:1,title:1,width:1,height:1},
+TH:{colspan:1,rowspan:1,align:1},
+TD:{colspan:1,rowspan:1,align:1}
+};
+function cleanUrl(value,mode){
+var v=String(value||'').replace(/[\u0000-\u001F]/g,'').trim();
+if(!v)return null;
+var m=/^([a-zA-Z][a-zA-Z0-9+.-]*):/.exec(v);
+if(m){
+var scheme=m[1].toLowerCase();
+if(mode==='href'&&(scheme==='http'||scheme==='https'||scheme==='mailto'))return v;
+if(mode==='src'&&(scheme==='http'||scheme==='https'))return v;
+if(mode==='src'&&scheme==='data'&&/^data:image\/(png|jpe?g|gif|webp);base64,/i.test(v))return v;
+return null;
+}
+return v;
+}
+function cleanAttrs(el){
+var tag=el.tagName.toUpperCase();
+var allowed=allowedAttrs[tag]||{};
+var attrs=[].slice.call(el.attributes);
+for(var i=0;i<attrs.length;i++){
+var attr=attrs[i];
+var name=attr.name.toLowerCase();
+if(!allowed[name]){el.removeAttribute(attr.name);continue;}
+if(name==='href'){
+var safe=cleanUrl(attr.value,'href');
+el.setAttribute('href',safe===null?'#':safe);
+}else if(name==='src'){
+var safeSrc=cleanUrl(attr.value,'src');
+if(safeSrc===null)el.removeAttribute(attr.name);
+else el.setAttribute('src',safeSrc);
+}
+}
+}
+function cleanNode(node){
+if(!node)return;
+if(node.nodeType===8){node.parentNode.removeChild(node);return;}
+if(node.nodeType!==1)return;
+var tag=node.tagName.toUpperCase();
+if(!allowedTags[tag]){
+var children=[].slice.call(node.childNodes);
+for(var i=0;i<children.length;i++)cleanNode(children[i]);
+var parent=node.parentNode;
+if(!parent)return;
+while(node.firstChild)parent.insertBefore(node.firstChild,node);
+parent.removeChild(node);
+return;
+}
+cleanAttrs(node);
+var kids=[].slice.call(node.childNodes);
+for(var j=0;j<kids.length;j++)cleanNode(kids[j]);
+}
+var tpl=document.createElement('template');
+tpl.innerHTML=String(h);
+var roots=[].slice.call(tpl.content.childNodes);
+for(var k=0;k<roots.length;k++)cleanNode(roots[k]);
+return tpl.innerHTML;
+}
+
+var bodyCache=[];
+var searchCache=[];
+function getBodyHtml(p){
+if(!bodyCache[p.id]){
+var bodyHtml=typeof marked!=='undefined'?marked.parse(p.body):'<div class="blog-post-plain">'+escapeHtml(p.body)+'</div>';
+bodyCache[p.id]=sanitizeHtml(bodyHtml).replace(/<a /g,'<a target="_blank" rel="noopener" ');
+}
+return bodyCache[p.id];
+}
+function getSearchText(p){
+if(!searchCache[p.id])searchCache[p.id]=(p.title+' '+p.tags.join(' ')+' '+p.excerpt+' '+p.body).toLowerCase();
+return searchCache[p.id];
+}
 
 function renderPosts(filter){
 filter=(filter||'').toLowerCase();
 posts.sort(function(a,b){return b.date.localeCompare(a.date);});
 feed.innerHTML='';
+var fragment=document.createDocumentFragment();
 var found=0;
 posts.forEach(function(p,i){
-var bodyHtml=typeof marked!=='undefined'?marked.parse(p.body):escapeHtml(p.body);
-bodyHtml=sanitizeHtml(bodyHtml).replace(/<a /g,'<a target="_blank" rel="noopener" ');
-var searchText=(p.title+' '+p.tags.join(' ')+' '+p.excerpt+' '+p.body).toLowerCase();
+var bodyHtml=getBodyHtml(p);
+var searchText=getSearchText(p);
 if(filter&&searchText.indexOf(filter)===-1)return;
 found++;
 var post=document.createElement('article');
@@ -445,13 +578,14 @@ if(sel&&String(sel).length>0)return;
 togglePost();
 });
 post.addEventListener('keydown',function(e){
-if(e.key==='Enter'||e.key===' '){e.preventDefault();togglePost();}
+if((e.key==='Enter'||e.key===' ')&&!(e.target.closest&&e.target.closest('a'))){e.preventDefault();togglePost();}
 });
 wrap.addEventListener('transitionend',function(ev){
 if(ev.propertyName==='max-height'&&post.classList.contains('open'))wrap.style.maxHeight='none';
 });
-feed.appendChild(post);
+fragment.appendChild(post);
 });
+feed.appendChild(fragment);
 noResults.style.display=found===0?'block':'none';
 var revealPosts=document.querySelectorAll('.blog-post.reveal');
 for(var qi=0;qi<revealPosts.length;qi++){

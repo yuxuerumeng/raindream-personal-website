@@ -111,6 +111,9 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
 .logo-mark{flex:0 0 auto;transition:transform .55s cubic-bezier(.32,.72,0,1)}
 .logo-text{background:var(--gradient-title);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:textFlow 6s 1.2s ease infinite;filter:drop-shadow(0 0 7px rgba(91,206,250,.35))}
 .nav-logo:hover .logo-mark{transform:translateY(-2px) rotate(-7deg)}
+.nav-burger{display:none;width:36px;height:36px;flex:0 0 auto;align-items:center;justify-content:center;border-radius:10px;color:var(--text);transition:background .3s ease,color .3s ease}
+.nav-burger:hover{background:var(--tag-bg)}
+.nav-burger:focus-visible{outline:none;box-shadow:0 0 0 3px var(--blue-soft)}
 .nav-links{display:flex;align-items:center;gap:28px}.nav-links a{opacity:0;animation:navFadeIn .5s ease forwards}.nav-links a:nth-child(1){animation-delay:.35s}.nav-links a:nth-child(2){animation-delay:.4s}.nav-links a:nth-child(3){animation-delay:.45s}.nav-links a:nth-child(4){animation-delay:.5s}
 .nav-links a{font-size:13px;font-weight:500;color:var(--text-2);letter-spacing:0.01em;transition:color .3s ease;position:relative}
 .nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1.5px;background:var(--gradient-accent);border-radius:1px;transition:width .3s ease}
@@ -252,6 +255,12 @@ html{scroll-behavior:auto}
 .theme-circle{position:fixed;z-index:9999;border-radius:50%;pointer-events:none;transform:scale(0);opacity:.15;background:var(--text);transition:transform .5s cubic-bezier(.4,0,.2,1),opacity .4s ease}
 
 /* ===== Responsive ===== */
+@media(max-width:1024px){
+.about-grid{gap:48px}
+.about-visual{height:280px}
+.section{padding:96px 28px}
+}
+
 @media(max-width:768px){
 .nav-links{gap:16px}
 .nav-links a{font-size:12px}
@@ -286,6 +295,16 @@ html{scroll-behavior:auto}
 .about-avatar{width:128px;height:128px}
 .about-text p{font-size:15px}
 }
+
+@media(max-width:640px){
+.nav-burger{display:inline-flex}
+.nav-links{position:absolute;top:100%;left:0;right:0;display:flex;flex-direction:column;align-items:stretch;gap:0;background:var(--nav-solid);border-bottom:1px solid var(--nav-border);box-shadow:var(--shadow-lg);padding:6px 16px 12px;opacity:0;pointer-events:none;transform:translateY(-10px);transition:opacity .2s ease,transform .2s ease}
+.nav-links.open{opacity:1;transform:none;pointer-events:auto}
+.nav-links a{opacity:1;animation:none;padding:13px 2px;font-size:15px;border-bottom:1px solid var(--nav-border)}
+.nav-links a::after{display:none}
+.nav-links .theme-toggle{opacity:1;animation:none;align-self:center;margin-top:14px}
+.nav-logo{font-size:17px}
+}
 /* 老浏览器（如 Firefox 102 及更早）不支持背景模糊，改用不透明底色，避免半透明导航看不清 */
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
 .nav{background:var(--nav-solid)}
@@ -299,7 +318,8 @@ html{scroll-behavior:auto}
 <!-- Navigation -->
 <nav class="nav" id="nav">
 <a href="#hero" class="nav-logo"><svg class="logo-mark" width="19" height="19" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="logoGrad" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="#5BCEFA"/><stop offset="100%" stop-color="#F5A9B8"/></linearGradient></defs><path d="M12 2.4C12 2.4 6 9.6 6 13.6a6 6 0 0 0 12 0c0-4-6-11.2-6-11.2z" fill="url(#logoGrad)"/></svg><span class="logo-text">RainDream</span></a>
-<div class="nav-links">
+<button class="nav-burger" id="navBurger" aria-label="打开菜单" aria-expanded="false"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+<div class="nav-links" id="navLinks">
 <a href="#hero" class="active">首页</a>
 <a href="#about">关于</a>
 <a href="blog.html">文章</a>
@@ -352,7 +372,7 @@ html{scroll-behavior:auto}
 </div>
 <div class="about-visual reveal">
 <div class="about-visual-inner">
-<img src="avatar.jpg" alt="雨梦" class="about-avatar">
+<img src="avatar.jpg" alt="雨梦" class="about-avatar" width="188" height="188" decoding="async">
 <div class="about-visual-text">Be yourself</div>
 <div class="about-visual-sub">everyone else is already taken</div>
 </div>
@@ -424,6 +444,26 @@ requestAnimationFrame(function(){circle.style.transform='scale(1)';});
 setTimeout(function(){applyTheme(next);circle.style.opacity='0';},350);
 setTimeout(function(){circle.remove();},700);
 });
+
+/* ===== Mobile Navigation ===== */
+var navBurger=document.getElementById('navBurger');
+var navMenu=document.getElementById('navLinks');
+function closeMobileMenu(){
+if(navMenu)navMenu.classList.remove('open');
+if(navBurger)navBurger.setAttribute('aria-expanded','false');
+}
+if(navBurger&&navMenu){
+navBurger.addEventListener('click',function(){
+var open=navMenu.classList.toggle('open');
+navBurger.setAttribute('aria-expanded',open?'true':'false');
+});
+navMenu.addEventListener('click',function(e){
+if(e.target.closest&&e.target.closest('a'))closeMobileMenu();
+});
+window.addEventListener('resize',function(){
+if(window.innerWidth>640)closeMobileMenu();
+});
+}
 
 /* ===== Nav Scroll Effect ===== */
 var nav=document.getElementById('nav');
@@ -502,115 +542,179 @@ if(!cv||!cv.getContext)return;
 var rmq=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)');
 if(rmq&&rmq.matches)return;              // 系统要求减少动效时不下雨
 var ctx=cv.getContext('2d');
-var W=0,H=0,drops=[],rafId=null,running=false,last=0,visible=true;
+var W=0,H=0,drops=[],rafId=null,running=false,visible=true,last=0;
 
-// 雨滴按「颜色 x 透明度档 x 线宽」分组：每帧每组只设置一次画笔、只描一次路径，
-// 画笔状态切换从每帧 ~130 次降到最多 20 次
-var COLORS=['91,206,250','245,169,184'],ALPHAS=[0.15,0.22,0.29,0.36,0.44],WIDTHS=[1,1.5];
+// 雨滴按「颜色 x 透明度档 x 线宽」分组：每帧每组只设置一次画笔、只描一次路径。
+// 相比旧版增加一个线宽档，远近层次更清楚，同时仍把画笔切换控制在 24 次以内。
+var DARK_COLORS=['91,206,250','245,169,184'];
+var LIGHT_COLORS=['54,130,180','198,90,130'];
+var ALPHAS=[0.14,0.26,0.38,0.52];
+var WIDTHS=[1,1.4,1.8];
+var PER_COLOR=ALPHAS.length*WIDTHS.length;
+var GROUP_COUNT=DARK_COLORS.length*PER_COLOR;
 var GROUPS=[],GBUF=[];
-for(var gi=0;gi<20;gi++){
-var ci=gi<10?0:1,rest=gi%10;
-GROUPS.push({c:COLORS[ci],a:ALPHAS[Math.floor(rest/2)],w:WIDTHS[rest%2]});
+for(var gi=0;gi<GROUP_COUNT;gi++){
+var colorIdx=Math.floor(gi/PER_COLOR);
+var rem=gi%PER_COLOR;
+var alphaIdx=Math.floor(rem/WIDTHS.length);
+var widthIdx=rem%WIDTHS.length;
+GROUPS.push({dark:DARK_COLORS[colorIdx],light:LIGHT_COLORS[colorIdx],a:ALPHAS[alphaIdx],w:WIDTHS[widthIdx]});
 GBUF.push([]);
 }
-function groupIdx(alpha,wd){
-var ai=0,best=9;
-for(var i=0;i<5;i++){var dd=Math.abs(ALPHAS[i]-alpha);if(dd<best){best=dd;ai=i;}}
-return ai*2+(wd>1.2?1:0);
+function nearestIndex(values,value){
+var best=0,bd=1e9;
+for(var i=0;i<values.length;i++){
+var dd=Math.abs(values[i]-value);
+if(dd<bd){bd=dd;best=i;}
 }
-function makeDrop(init,pink){
-var a=0.14+Math.random()*0.30,wd=Math.random()<0.3?1.5:1;
-var isPink=(pink===undefined)?(Math.random()<0.34):pink;
-return{
-x:Math.random()*(W+160)-80,
-y:init?Math.random()*H:-Math.random()*H*0.4-20,
-len:8+Math.random()*16,
-sp:380+Math.random()*460,
-g:(isPink?10:0)+groupIdx(a,wd)
-};
+return best;
+}
+function groupIndex(alpha,width){
+return nearestIndex(ALPHAS,alpha)*WIDTHS.length+nearestIndex(WIDTHS,width);
+}
+
+var maxDrops=0,minDrops=0,frameEma=16,lastQualityCheck=0;
+
+function getPixelRatio(){
+var dpr=window.devicePixelRatio||1;
+var area=W*H;
+if(area>2500000)return Math.min(dpr,1);
+if(area>1400000)return Math.min(dpr,1.25);
+return Math.min(dpr,1.5);
+}
+
+function resetDrop(d,init){
+d.depth=Math.random();
+d.len=10+d.depth*22;
+d.sp=300+d.depth*620;
+d.alpha=0.12+d.depth*0.40;
+d.width=d.depth<0.35?1:(d.depth<0.72?1.4:1.8);
+d.baseSlant=0.08+d.depth*0.20;
+d.pink=Math.random()<0.34;
+d.x=Math.random()*(W+180)-90;
+d.y=init?Math.random()*H:-d.len-Math.random()*H*0.35-12;
+d.g=(d.pink?PER_COLOR:0)+groupIndex(d.alpha,d.width);
+}
+function createDrop(init){
+var d={};
+resetDrop(d,init);
+return d;
+}
+function computeDropCount(){
+var n=Math.round(W*H/8600);
+n=Math.max(35,Math.min(165,n));
+if(navigator.deviceMemory&&navigator.deviceMemory<=4)n=Math.min(n,120);
+return n;
+}
+function setDropCount(n){
+if(n===drops.length)return;
+if(n<drops.length)drops.length=n;
+else while(drops.length<n)drops.push(createDrop(true));
 }
 function layout(){
-// canvas 是替换元素，left/right 不会把它拉满，所以按父元素尺寸显式设置
 var r=cv.parentNode.getBoundingClientRect();
 W=Math.round(r.width);H=Math.round(r.height);
 if(!W||!H)return false;
-// 大屏适当降一点像素比：这是纯装饰层，位图小一半肉眼几乎无差，但省显存和绘制量
-var px=Math.min(window.devicePixelRatio||1,(W*H>900000)?1.5:2);
+var px=getPixelRatio();
 cv.width=Math.round(W*px);cv.height=Math.round(H*px);
 cv.style.width=W+'px';cv.style.height=H+'px';
 ctx.setTransform(px,0,0,px,0,0);
 return true;
 }
 function seed(){
-// 按面积算雨滴数量，保证手机/平板/宽屏的疏密观感一致
-var n=Math.max(30,Math.min(170,Math.round(W*H/8000)));
+maxDrops=computeDropCount();
+minDrops=Math.max(24,Math.round(maxDrops*0.35));
 drops=[];
-for(var i=0;i<n;i++)drops.push(makeDrop(true));
+for(var i=0;i<maxDrops;i++)drops.push(createDrop(true));
 }
 function resize(){
 var oldW=W,oldH=H;
 if(!layout())return;
-// 宽度明显变化才重建雨滴；高度变化（手机地址栏收放）只把落到画面外的拨回来，
-// 避免滑动时整场雨突然重排，看起来像「闪了一下」
 if(!drops.length||Math.abs(W-oldW)>40){seed();}
-else if(H!==oldH){for(var i=0;i<drops.length;i++){if(drops[i].y>H)drops[i].y=Math.random()*H;}}
+else if(H!==oldH){
+for(var i=0;i<drops.length;i++){
+if(drops[i].y>H)drops[i].y=Math.random()*H;
+}
+}
 }
 function frame(t){
 rafId=null;
 if(!last)last=t;
-// 步长封顶在一帧（约 16.7ms）：掉帧时雨只是走得稍慢，
-// 不会因为一帧间隔过大而「猛地加速」跳一下（高刷屏仍按真实节奏走）
-var dt=(t-last)/1000;last=t;
-if(dt>0.0175)dt=0.0175;
+var rawDt=(t-last)/1000;last=t;
+var dt=rawDt>0.0175?0.0175:rawDt;
+if(rawDt>0)frameEma+=(rawDt*1000-frameEma)*0.08;
+
+// 自适应：掉帧时减少雨量，流畅时再逐步恢复，避免下雨动画拖慢整页。
+if(t-lastQualityCheck>1500){
+lastQualityCheck=t;
+if(frameEma>19&&drops.length>minDrops){
+setDropCount(Math.max(minDrops,Math.floor(drops.length*0.82)));
+}else if(frameEma<10.5&&drops.length<maxDrops){
+setDropCount(Math.min(maxDrops,Math.ceil(drops.length*1.12)));
+}
+}
+
 ctx.clearRect(0,0,W,H);
-var m=(document.documentElement.getAttribute('data-theme')==='dark')?1:0.92;
+ctx.lineCap='round';
+var dark=document.documentElement.getAttribute('data-theme')==='dark';
+var alphaBoost=dark?1:1.2;
+var gust=0.035*Math.sin(t*0.00035);
 var i,g;
-for(g=0;g<20;g++){if(GBUF[g].length)GBUF[g].length=0;}
+for(g=0;g<GROUP_COUNT;g++){if(GBUF[g].length)GBUF[g].length=0;}
 for(i=0;i<drops.length;i++){
 var d=drops[i];
+var slant=d.baseSlant+gust;
 d.y+=d.sp*dt;
-d.x-=d.sp*dt*0.18;
-if(d.y-d.len>H||d.x<-90){drops[i]=makeDrop(false);d=drops[i];}
+d.x-=d.sp*slant*dt;
+if(d.y-d.len>H||d.x<-100)resetDrop(d,false);
 GBUF[d.g].push(d);
 }
-ctx.lineCap='round';
-for(g=0;g<20;g++){
+for(g=0;g<GROUP_COUNT;g++){
 var arr=GBUF[g];
 if(!arr.length)continue;
-ctx.strokeStyle='rgba('+GROUPS[g].c+','+(GROUPS[g].a*m).toFixed(3)+')';
+var palette=dark?GROUPS[g].dark:GROUPS[g].light;
+ctx.strokeStyle='rgba('+palette+','+(GROUPS[g].a*alphaBoost).toFixed(3)+')';
 ctx.lineWidth=GROUPS[g].w;
 ctx.beginPath();
 for(i=0;i<arr.length;i++){
 var q=arr[i];
+var sx=q.sp*(q.baseSlant+gust)*dt;
 ctx.moveTo(q.x,q.y);
-ctx.lineTo(q.x+q.len*0.18,q.y-q.len);
+ctx.lineTo(q.x+sx,q.y-q.len);
 }
 ctx.stroke();
 }
 if(running)rafId=requestAnimationFrame(frame);
 }
-function start(){if(running)return;running=true;last=0;if(rafId===null)rafId=requestAnimationFrame(frame);}
-function stop(){running=false;if(rafId!==null){cancelAnimationFrame(rafId);rafId=null;}ctx.clearRect(0,0,W,H);}
+function start(){
+if(running)return;
+running=true;last=0;frameEma=16;lastQualityCheck=0;
+if(rafId===null)rafId=requestAnimationFrame(frame);
+}
+function stop(){
+running=false;
+if(rafId!==null){cancelAnimationFrame(rafId);rafId=null;}
+ctx.clearRect(0,0,W,H);
+}
 if(!layout())return;
 seed();
 var resizeTimer=null;
-function onResize(){if(resizeTimer)clearTimeout(resizeTimer);resizeTimer=setTimeout(resize,150);}
-window.addEventListener('resize',onResize);        // 防抖：滑动时地址栏收放会连发 resize
+function onResize(){
+if(resizeTimer)clearTimeout(resizeTimer);
+resizeTimer=setTimeout(resize,150);
+}
+window.addEventListener('resize',onResize);
 window.addEventListener('orientationchange',onResize);
 window.addEventListener('load',resize);
-// 元素级监听：首屏自身尺寸变化（旋转、地址栏、字号加载）都能跟上
 if('ResizeObserver' in window){try{new ResizeObserver(onResize).observe(cv.parentNode);}catch(e){}}
-// 只在首屏可见时跑，滚下去就停
+
 if('IntersectionObserver' in window){
 var host=cv.parentNode;
 new IntersectionObserver(function(es){
 var v=es[0].isIntersecting;
 visible=v;
-// 注意：这里必须按「可见就启动」判断，不能写成「状态变化才启动」——
-// visible 初值就是 true，首次回调 v===visible，那样会导致 start() 永远不被调用
 if(v){if(!running)start();}
 else{if(running)stop();}
-// 首屏滚出视口后，连同里面的光斑/渐变动画一起暂停
 host.classList.toggle('hero--offscreen',!v);
 },{threshold:0}).observe(host);
 }else{start();}
