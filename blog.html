@@ -115,6 +115,7 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
 .nav-burger{display:none;width:36px;height:36px;flex:0 0 auto;align-items:center;justify-content:center;border-radius:10px;color:var(--text);transition:background .3s ease,color .3s ease}
 .nav-burger:hover{background:var(--tag-bg)}
 .nav-burger:focus-visible{outline:none;box-shadow:0 0 0 3px var(--blue-soft)}
+.nav-actions{display:flex;align-items:center;gap:14px}
 .nav-links{display:flex;align-items:center;gap:28px}.nav-links a{opacity:0;animation:navFadeIn .5s ease forwards}.nav-links a:nth-child(1){animation-delay:.35s}.nav-links a:nth-child(2){animation-delay:.4s}.nav-links a:nth-child(3){animation-delay:.45s}.nav-links a:nth-child(4){animation-delay:.5s}
 .nav-links a{font-size:13px;font-weight:500;color:var(--text-2);letter-spacing:0.01em;transition:color .3s ease;position:relative}
 .nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1.5px;background:var(--gradient-accent);border-radius:1px;transition:width .3s ease}
@@ -250,8 +251,8 @@ html{scroll-behavior:auto}
 .nav-links.open{opacity:1;transform:none;pointer-events:auto}
 .nav-links a{opacity:1;animation:none;padding:13px 2px;font-size:15px;border-bottom:1px solid var(--nav-border)}
 .nav-links a::after{display:none}
-.nav-links .theme-toggle{opacity:1;animation:none;align-self:center;margin-top:14px}
 .nav-logo{font-size:17px}
+.nav-actions{gap:8px}
 }
 
 
@@ -345,12 +346,14 @@ html{scroll-behavior:auto}
 
 <nav class="nav" id="nav">
 <a href="index.html" class="nav-logo"><svg class="logo-mark" width="19" height="19" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="logoGrad" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="#5BCEFA"/><stop offset="100%" stop-color="#F5A9B8"/></linearGradient></defs><path d="M12 2.4C12 2.4 6 9.6 6 13.6a6 6 0 0 0 12 0c0-4-6-11.2-6-11.2z" fill="url(#logoGrad)"/></svg><span class="logo-text">RainDream</span></a>
+<div class="nav-actions">
 <button class="nav-burger" id="navBurger" aria-label="打开菜单" aria-expanded="false"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
 <div class="nav-links" id="navLinks">
 <a href="index.html">首页</a>
 <a href="index.html#about">关于</a>
 <a href="blog.html" class="active">文章</a>
 <a href="index.html#contact">联系</a>
+</div>
 <button class="theme-toggle" id="themeToggle" role="switch" aria-label="切换深浅色模式" aria-checked="false">
 <svg class="toggle-icon toggle-sun" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
 <svg class="toggle-icon toggle-moon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
