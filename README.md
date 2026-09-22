@@ -37,7 +37,7 @@
 - **共享样式** → 打开 `styles.css`（导航、主题、配色变量、页脚等两页共用的部分）
 - **共享交互** → 打开 `common.js`（主题切换、移动端导航、回到顶部、滚动高亮等）
 - **主页内容** → 打开 `index.html`，搜索对应中文就能定位到要改的位置
-- **联系方式** → 打开 `index.html`，搜索 `contact-grid`，找到四个 `<a href="...">` 标签改链接
+- **联系方式** → 打开 `index.html`，搜索 `contact-grid`，改里面几个 `<a href="...">` 的链接和文字
 - **关于我** → 打开 `index.html`，搜索 `关于我` 或 `about-text`，直接改段落文字
 - **配色** → 打开 `styles.css`，搜索 `:root`，蓝粉颜色在 CSS 变量 `--blue` 和 `--pink` 里
 - **头像** → 替换 `avatar.webp`（页面内头像）；`avatar.jpg` 用作社交分享图（og:image），保持同名即可
