@@ -9,9 +9,12 @@
 ```
 ├── index.html      # 主页
 ├── blog.html       # 博客页
+├── styles.css      # 共享样式（两页共用）
+├── common.js       # 共享交互逻辑（两页共用）
 ├── posts.js        # 文章数据
 ├── sw.js           # 离线缓存 Service Worker
-└── avatar.webp     # 头像
+├── avatar.webp     # 页面内头像
+└── avatar.jpg      # 社交分享图（og:image）
 ```
 
 ## 写博客
@@ -31,15 +34,15 @@
 
 ## 修改代码
 
-所有代码都在 HTML 文件中，用文本编辑器打开即可：
-
+- **共享样式** → 打开 `styles.css`（导航、主题、配色变量、页脚等两页共用的部分）
+- **共享交互** → 打开 `common.js`（主题切换、移动端导航、回到顶部、滚动高亮等）
 - **主页内容** → 打开 `index.html`，搜索对应中文就能定位到要改的位置
-- **联系方式** → 搜索 `contact-grid`，找到四个 `<a href="...">` 标签改链接
-- **关于我** → 搜索 `关于我` 或 `about-text`，直接改段落文字
-- **配色** → 搜索 `:root`，蓝粉颜色在 CSS 变量 `--blue` 和 `--pink` 里
-- **头像** → 替换 `avatar.webp` 文件，保持同名即可
+- **联系方式** → 打开 `index.html`，搜索 `contact-grid`，找到四个 `<a href="...">` 标签改链接
+- **关于我** → 打开 `index.html`，搜索 `关于我` 或 `about-text`，直接改段落文字
+- **配色** → 打开 `styles.css`，搜索 `:root`，蓝粉颜色在 CSS 变量 `--blue` 和 `--pink` 里
+- **头像** → 替换 `avatar.webp`（页面内头像）；`avatar.jpg` 用作社交分享图（og:image），保持同名即可
 
-HTML 里的 `<style>` 标签负责样式，`<script>` 标签负责交互逻辑。
+页面专属的样式仍留在各自的 `<style>` 里，交互逻辑留在各自的 `<script>` 里。
 
 ## 部署
 
@@ -76,3 +79,8 @@ python -m http.server 8080
 ## 离线说明
 
 主页完全不依赖外部网络。博客页的 Markdown 渲染依赖 `marked.js` CDN，断网时会降级显示纯文本。
+
+Service Worker 缓存策略（`sw.js`）：
+
+- `index.html`、`blog.html`、`posts.js` 走**网络优先**——发布新文章后，老访客刷新页面即可看到，无需手动清缓存；
+- `avatar.webp` 等静态资源走**缓存优先**——若替换了这类文件，把 `sw.js` 顶部的 `CACHE_VERSION` 从 `v2` 改成 `v3`（每次 +1），老访客才会拉到新版本。

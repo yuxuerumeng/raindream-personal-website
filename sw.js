@@ -1,4 +1,8 @@
-const CACHE_NAME = 'raindream-cache-v1';
+// Service Worker 版本号：替换了静态资源（如 avatar.webp）且希望老访客立即更新时，把它 +1。
+// posts.js 走的是「网络优先」，所以发布新文章不需要改这里。
+const CACHE_VERSION = 'v2';
+const CACHE_NAME = 'raindream-cache-' + CACHE_VERSION;
+
 const PRECACHE_URLS = [
   './',
   './index.html',
@@ -43,7 +47,10 @@ self.addEventListener('fetch', function (event) {
   const request = event.request;
   if (request.method !== 'GET') return;
 
-  if (request.mode === 'navigate') {
+  const url = new URL(request.url);
+
+  // 页面导航 + 文章数据（posts.js）：网络优先，保证新文章立刻出现；断网时回退缓存。
+  if (request.mode === 'navigate' || url.pathname.endsWith('/posts.js')) {
     event.respondWith(
       fetch(request)
         .then(function (response) {
@@ -62,6 +69,7 @@ self.addEventListener('fetch', function (event) {
     return;
   }
 
+  // 其余静态资源（头像等）：缓存优先，速度快、省流量；换文件后记得给 CACHE_VERSION +1。
   event.respondWith(
     caches.match(request).then(function (cached) {
       if (cached) return cached;
